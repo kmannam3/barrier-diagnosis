@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>제조업 홈페이지 신뢰도 자가진단 | barrier</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+/* ── 리셋 & 기본 ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;background:#F4F6FA;color:#1A1A2E;line-height:1.6;font-size:15px;}
+
+/* ── 색상 토큰 ── */
+:root{
+  --navy:#1B3F6B;
+  --navy-dark:#122C4E;
+  --navy-light:#EEF2F7;
+  --blue:#2563EB;
+  --orange:#E87722;
+  --white:#FFFFFF;
+  --gray-50:#F8FAFC;
+  --gray-100:#F1F5F9;
+  --gray-200:#E2E8F0;
+  --gray-400:#94A3B8;
+  --gray-600:#475569;
+  --gray-800:#1E293B;
+  --green:#16A34A;
+  --green-bg:#F0FFF4;
+  --yellow:#D97706;
+  --yellow-bg:#FFFBEB;
+  --red:#DC2626;
+  --red-bg:#FFF5F5;
+  --radius:12px;
+  --shadow:0 2px 12px rgba(27,63,107,0.10);
+  --shadow-lg:0 8px 32px rgba(27,63,107,0.14);
+}
+
+/* ── 헤더 ── */
+.header{background:var(--navy);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,0.2);}
+.header-logo{font-size:22px;font-weight:800;color:var(--orange);letter-spacing:-0.5px;}
+.header-back{font-size:13px;color:#aac4e0;text-decoration:none;display:flex;align-items:center;gap:6px;}
+.header-back:hover{color:var(--white);}
+
+/* ── 히어로 ── */
+.hero{background:linear-gradient(135deg,var(--navy) 0%,#1e4d8c 60%,#2563EB 100%);padding:60px 24px 50px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
+.hero-eyebrow{display:inline-block;background:rgba(232,119,34,0.2);color:var(--orange);font-size:12px;font-weight:700;padding:4px 14px;border-radius:50px;letter-spacing:1px;margin-bottom:20px;border:1px solid rgba(232,119,34,0.3);}
+.hero h1{font-size:clamp(22px,4vw,34px);font-weight:800;color:var(--white);line-height:1.3;margin-bottom:16px;letter-spacing:-0.5px;}
+.hero p{font-size:clamp(14px,2vw,16px);color:rgba(255,255,255,0.8);max-width:600px;margin:0 auto 32px;line-height:1.7;}
+.hero-stats{display:flex;gap:32px;justify-content:center;flex-wrap:wrap;}
+.hero-stat{text-align:center;}
+.hero-stat-num{font-size:28px;font-weight:800;color:var(--orange);}
+.hero-stat-label{font-size:12px;color:rgba(255,255,255,0.6);margin-top:2px;}
+
+/* ── 컨테이너 ── */
+.container{max-width:760px;margin:0 auto;padding:0 16px;}
+
+/* ── 진단 폼 ── */
+.diagnosis-wrap{padding:40px 0 80px;}
+.step-indicator{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:40px;flex-wrap:wrap;}
+.step-dot{width:10px;height:10px;border-radius:50%;background:var(--gray-200);transition:all 0.3s;}
+.step-dot.active{background:var(--navy);transform:scale(1.3);}
+.step-dot.done{background:var(--blue);}
+
+/* ── 카테고리 카드 ── */
+.category-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden;border:1.5px solid var(--gray-200);transition:box-shadow 0.2s;}
+.category-card.active-cat{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.08),var(--shadow);}
+.category-head{padding:20px 24px 16px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;gap:14px;}
+.category-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.category-info{flex:1;}
+.category-name{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:2px;}
+.category-pts{font-size:13px;color:var(--gray-600);}
+.category-bar{height:3px;background:var(--gray-100);margin:0 24px 0;}
+.category-bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--navy));border-radius:2px;width:0%;transition:width 0.5s ease;}
+
+/* ── 문항 ── */
+.questions{padding:8px 0 16px;}
+.q-item{padding:16px 24px;border-bottom:1px solid var(--gray-100);}
+.q-item:last-child{border-bottom:none;}
+.q-text{font-size:14px;color:var(--gray-800);font-weight:500;margin-bottom:12px;line-height:1.6;}
+.q-num{color:var(--blue);font-weight:700;margin-right:6px;}
+.q-pts{display:inline-block;font-size:11px;color:var(--gray-400);background:var(--gray-100);padding:2px 8px;border-radius:20px;margin-left:8px;font-weight:600;}
+.q-options{display:flex;gap:8px;flex-wrap:wrap;}
+.q-btn{flex:1;min-width:80px;padding:10px 8px;border:1.5px solid var(--gray-200);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:var(--white);color:var(--gray-600);transition:all 0.18s;text-align:center;font-family:inherit;}
+.q-btn:hover{border-color:var(--navy);color:var(--navy);background:var(--navy-light);}
+.q-btn.sel-yes{background:var(--navy);border-color:var(--navy);color:var(--white);}
+.q-btn.sel-partial{background:var(--yellow-bg);border-color:var(--yellow);color:var(--yellow);}
+.q-btn.sel-no{background:var(--red-bg);border-color:var(--red);color:var(--red);}
+
+/* ── 진행 바 ── */
+.progress-wrap{background:var(--white);border-radius:var(--radius);padding:20px 24px;box-shadow:var(--shadow);margin-bottom:24px;position:sticky;top:65px;z-index:50;border:1.5px solid var(--gray-200);}
+.progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.progress-label{font-size:13px;font-weight:700;color:var(--navy);}
+.progress-count{font-size:13px;color:var(--gray-600);}
+.progress-bar-wrap{height:8px;background:var(--gray-100);border-radius:4px;overflow:hidden;}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--navy));border-radius:4px;transition:width 0.4s ease;width:0%;}
+.progress-score{margin-top:10px;font-size:13px;color:var(--gray-600);}
+.progress-score span{font-weight:700;color:var(--navy);}
+
+/* ── 제출 버튼 ── */
+.submit-wrap{text-align:center;padding:32px 0;}
+.btn-submit{background:linear-gradient(135deg,var(--navy),var(--blue));color:var(--white);border:none;padding:18px 56px;border-radius:50px;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(27,63,107,0.3);transition:all 0.2s;font-family:inherit;letter-spacing:-0.3px;}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(27,63,107,0.4);}
+.btn-submit:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.submit-hint{font-size:13px;color:var(--gray-400);margin-top:12px;}
+
+/* ── 결과 화면 ── */
+#result-section{display:none;padding:40px 0 80px;}
+
+.result-card{background:var(--white);border-radius:16px;box-shadow:var(--shadow-lg);overflow:hidden;border:1.5px solid var(--gray-200);}
+
+/* 결과 헤더 */
+.result-header{background:linear-gradient(135deg,var(--navy) 0%,#1e4d8c 100%);padding:36px 32px;text-align:center;position:relative;}
+.result-header-label{font-size:12px;font-weight:700;color:rgba(255,255,255,0.6);letter-spacing:2px;margin-bottom:8px;}
+.result-company{font-size:14px;color:rgba(255,255,255,0.7);margin-bottom:16px;min-height:20px;}
+.result-score-wrap{display:inline-flex;align-items:baseline;gap:6px;margin-bottom:12px;}
+.result-score-num{font-size:72px;font-weight:900;color:var(--white);line-height:1;letter-spacing:-2px;}
+.result-score-max{font-size:24px;color:rgba(255,255,255,0.5);font-weight:600;}
+.result-grade-badge{display:inline-block;padding:8px 24px;border-radius:50px;font-size:16px;font-weight:800;margin-bottom:8px;letter-spacing:-0.3px;}
+.result-date{font-size:12px;color:rgba(255,255,255,0.4);}
+
+/* 항목별 점수 */
+.result-body{padding:28px;}
+.result-section-title{font-size:14px;font-weight:700;color:var(--gray-600);letter-spacing:1px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--gray-100);}
+
+.cat-score-list{display:flex;flex-direction:column;gap:12px;margin-bottom:28px;}
+.cat-score-item{display:flex;align-items:center;gap:12px;}
+.cat-score-icon{font-size:18px;width:32px;text-align:center;flex-shrink:0;}
+.cat-score-info{flex:1;}
+.cat-score-name{font-size:13px;font-weight:600;color:var(--gray-800);margin-bottom:4px;}
+.cat-score-bar-wrap{height:6px;background:var(--gray-100);border-radius:3px;overflow:hidden;}
+.cat-score-bar{height:100%;border-radius:3px;transition:width 0.8s ease;}
+.cat-score-pts{font-size:13px;font-weight:700;color:var(--navy);min-width:50px;text-align:right;flex-shrink:0;}
+
+/* 진단 요약 */
+.result-summary{background:var(--navy-light);border-radius:10px;padding:20px;margin-bottom:24px;border-left:4px solid var(--navy);}
+.result-summary-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px;}
+.result-summary-text{font-size:14px;color:var(--gray-800);line-height:1.7;}
+
+/* 개선 방향 */
+.improve-list{display:flex;flex-direction:column;gap:10px;margin-bottom:24px;}
+.improve-item{display:flex;gap:12px;align-items:flex-start;padding:14px;background:var(--gray-50);border-radius:8px;border:1px solid var(--gray-100);}
+.improve-dot{width:8px;height:8px;border-radius:50%;background:var(--orange);margin-top:6px;flex-shrink:0;}
+.improve-text{font-size:13px;color:var(--gray-800);line-height:1.6;}
+
+/* 안내 문구 */
+.result-notice{background:var(--yellow-bg);border:1px solid #FDE68A;border-radius:10px;padding:16px 20px;margin-bottom:28px;font-size:13px;color:#92400E;line-height:1.7;}
+
+/* CTA 버튼들 */
+.result-cta{display:flex;flex-direction:column;gap:10px;}
+.btn-primary{background:var(--orange);color:var(--white);border:none;padding:16px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.2s;text-align:center;display:block;width:100%;letter-spacing:-0.3px;}
+.btn-primary:hover{background:#d06018;transform:translateY(-1px);}
+.btn-secondary{background:var(--white);color:var(--navy);border:2px solid var(--navy);padding:14px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.2s;text-align:center;display:block;width:100%;}
+.btn-secondary:hover{background:var(--navy-light);}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.btn-icon{margin-right:6px;}
+
+/* 회사명 입력 */
+.company-input-wrap{padding:20px 28px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);}
+.company-input-label{font-size:13px;color:var(--gray-600);margin-bottom:8px;}
+.company-input{width:100%;border:1.5px solid var(--gray-200);border-radius:8px;padding:10px 14px;font-size:14px;font-family:inherit;background:var(--white);color:var(--gray-800);outline:none;transition:border-color 0.2s;}
+.company-input:focus{border-color:var(--navy);}
+.company-input-hint{font-size:12px;color:var(--gray-400);margin-top:6px;}
+
+/* 다시하기 */
+.btn-retry{background:none;border:none;color:var(--gray-400);font-size:13px;cursor:pointer;text-decoration:underline;font-family:inherit;display:block;margin:16px auto 0;}
+.btn-retry:hover{color:var(--navy);}
+
+/* ── 인쇄 CSS ── */
+@media print{
+  .header,.hero,.progress-wrap,.submit-wrap,.btn-retry,#diagnosis-section{display:none!important;}
+  body{background:white;}
+  #result-section{display:block!important;padding:0;}
+  .result-card{box-shadow:none;border:1px solid #ddd;}
+  .result-cta,.btn-retry{display:none!important;}
+  .container{max-width:100%;padding:0;}
+}
+
+/* ── 반응형 ── */
+@media(max-width:600px){
+  .hero{padding:44px 16px 36px;}
+  .result-score-num{font-size:56px;}
+  .btn-row{grid-template-columns:1fr;}
+  .result-body{padding:20px;}
+  .category-head{padding:16px;}
+  .q-item{padding:14px 16px;}
+  .result-header{padding:28px 20px;}
+  .company-input-wrap{padding:16px;}
+}
+
+/* ── 로딩 오버레이 ── */
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(27,63,107,0.85);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+.loading-overlay.show{display:flex;}
+.loading-spinner{width:44px;height:44px;border:3px solid rgba(255,255,255,0.3);border-top-color:var(--orange);border-radius:50%;animation:spin 0.8s linear infinite;}
+.loading-text{color:var(--white);font-size:15px;font-weight:600;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── 토스트 ── */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:var(--white);padding:12px 28px;border-radius:50px;font-size:14px;font-weight:600;opacity:0;transition:all 0.3s;pointer-events:none;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<!-- 헤더 -->
+<header class="header">
+  <div class="header-logo">barrier</div>
+  <a href="https://barrierzone.kr" class="header-back">← 포트폴리오로 돌아가기</a>
+</header>
+
+<!-- 히어로 -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">FREE · 3분 진단</div>
+    <h1>우리 회사 홈페이지,<br>신규 거래처에게 신뢰를 주고 있을까요?</h1>
+    <p>제조업체 기준으로 제품, 기술력, 인증자료, 문의 동선이 잘 정리되어 있는지<br>3분 안에 확인해보세요.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-num">15</div><div class="hero-stat-label">진단 문항</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">5</div><div class="hero-stat-label">진단 영역</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">100</div><div class="hero-stat-label">만점</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 진단 섹션 -->
+<section id="diagnosis-section">
+  <div class="container">
+    <div class="diagnosis-wrap">
+
+      <!-- 진행 상태 -->
+      <div class="progress-wrap">
+        <div class="progress-top">
+          <span class="progress-label">진단 진행률</span>
+          <span class="progress-count" id="progress-count">0 / 15 완료</span>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" id="progress-bar"></div>
+        </div>
+        <div class="progress-score">현재 예상 점수: <span id="current-score">-</span></div>
+      </div>
+
+      <!-- 카테고리 1: 온라인 존재감 -->
+      <div class="category-card" id="cat-0">
+        <div class="category-head">
+          <div class="category-icon" style="background:#EEF2F7;">🌐</div>
+          <div class="category-info">
+            <div class="category-name">온라인 존재감</div>
+            <div class="category-pts">배점 15점 · 3문항</div>
+          </div>
+        </div>
+        <div class="category-bar"><div class="category-bar-fill" id="bar-0"></div></div>
+        <div class="questions">
+          <div class="q-item">
+            <div class="q-text"><span class="q-num">Q1</span>회사 이름을 네이버나 구글에 검색했을 때 홈페이지가 상위에 노출되나요?<span class="q-pts">5점</span></div>
+            <div class="q-options">
+              <button class="q-btn" onclick="answer(0,0,'yes',5)">예</button>
+              <button class="q-btn" onclick="answer(0,0,'partial',5)">일부 해당</button>
+              <button class="q-btn" onclick="answer(0,0,'no',5)">아니오</button>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-text"><span class="q-num">Q2</span>회사 홈페이지 주소(URL)가 있고, 현재 정상적으로 접속되나요?<span class="q-pts">5점</span></div>
+            <div class="q-options">
+              <button class="q-btn" onclick="answer(0,1,'yes',5)">예</button>
+              <button class="q-btn" onclick="answer(0,1,'partial',5)">일부 해당</button>
+              <button class="q-btn" onclick="answer(0,1,'no',5)">아니오</button>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-text"><span class="q-num">Q3</span>네이버 지도, 카카오맵 등에 회사 정보(주소, 전화번호)가 등록되어 있나요?<span class="q-pts">5점</span></div>
+            <div class="q-options">
+              <button class="q-btn" onclick="answer(0,2,'yes',5)">예</button>
+              <button class="q-btn" onclick="answer(0,2,'partial',5)">일부 해당</button>
+              <button class="q-btn" onclick="answer(0,2,'no',5)">아니오</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 카테고리 2: 홈페이지 기본 상태 -->
+      <div class="category-card" id="cat-1">
+        <div class="category-head">
+          <div class="category-icon" style="background:#EEF2F7;">💻</div>
+          <div class="category-info">
+            <div class="category-name">홈페이지 기본 상태</div>
+            <div class="category-pts">배점 20점 · 4문항</div>
+          </div>
+        </div>
+        <div class="category-bar"><div class="category-bar-fill" id="bar-1"></div></div>
+        <div class="questions">
+          <div class="q-item">
+            <div class="q-text"><span class="q-num">Q4</span>홈페이지가 모바일(스마트폰)에서도 잘 보이고 사용하기 편한가요?<span class="q-pts">5점</span></div>
+            <div class="q-options">
+              <button class="q-btn" onclick="answer(1,0,'yes',5)">예</button>
+              <button class="q-btn" onclick="answer(1,0,'partial',5)">일부 해당</button>
+              <button class="q-btn" onclick="answer(1,0,'no',5)">아니오</button>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-text"><span class="q-num">Q5</span>홈페이지에 전화번호, 이메일 등 연락처가 바로 보이는 위치에 있나요?<span class="q-pts">5점</span></div>
+            <div class="q-options">
+              <button class="q-btn" onclick="answer(1,1,'yes',5)">예</button>
+              <button class="q-btn" onclick="answer(1,1,'partial',5)">일부 해당</button>
+              <button class="q-btn" onclick="answer(1,1,'no',5)">아니오</button>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-text"><span class="q-num">Q6</span>홈페이지 내용이 최근 2년 이내에 업데이트된 상태인가요?<span class="q-pts">5점</span></div>
+            <div class="q-options">
+              <button class="q-btn" onclick="answer(1,2,'yes',5)">예</button>
+              <button class="q-btn" onclick="answer(1,2,'partial',5)">일부 해당</button>
+              <button class="q-btn" onclick="answer(1,2,'no',5)">아니오</button>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-text"><span class="q-num">Q7</span>홈페이지에서 회사 위치(공장/사무실)를 지도나 주소로 확인할 수 있나요?<span class="q-pts">5점</span></div>
+            <div class="q-options">
+              <button class="q-btn" onclick="answer(1,3,'yes',5)">예</button>
+              <button class="q-btn" onclick="answer(1,3,'partial',5)">일부 해당</button>
+              <button class="q-btn" onclick="answer(1,3,'no',5)">아니오</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 카테고리 3: 제품·기술 전달력 -->
+      <div class="category-card" id="cat-2">
+        <div class="category-head">
+          <div class="category-icon" style="background:#EEF2F7;">⚙️</div>
+          <div class="category-info">
+            <div class="category-name">제품·기술 전달력</div>
+            <div class="category-pts">배점 25점 · 4문항</div>
+          </div>
+        </div>
+        <div class="category-bar"><div class="category-bar-fill" id="bar-2"></div></div>
+        <div class="questions">
+          <div class="q-item">
+            <div class="q-text"><span class="q-num">Q8</span>주요 제품이나 서비스가 홈페이지에 사진 또는 설명과 함께 정리되어 있나요?<span class="q-pts">7점</span></div>
+            <div class="q-options">
+              <button class="q-btn" onclick="answer(2,0,'yes',7)">예</button>
+              <button class="q-btn" onclick="answer(2,0,'partial',7)">일부 해당</button>
+              <button class="q-btn" onclick="answer(2,0,'no',7)">아니오</button>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-text"><span class="q-num">Q9</span>보유 설비나 가공 능력(정밀도, 규격 등)을 홈페이지에서 확인할 수 있나요?<span class="q-pts">6점</span></div>
+            <div class="q-options">
+              <button class="q-btn" onclick="answer(2,1,'yes',6)">예</button>
+              <button class="q-btn" onclick="answer(2,1,'partial',6)">일부 해당</button>
+              <button class="q-btn" onclick="answer(2,1,'no',6)">아니오</button>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-text"><span class="q-num">Q10</span>제품 또는 공장 사진이 실제 우리 회사 것으로, 선명하게 보이나요?<span class="q-pts">6점</span></div>
+            <div class="q-options">
+              <button class="q-btn" onclick="answer(2,2,'yes',6)">예</button>
+              <button class="q-btn" onclick="answer(2,2,'partial',6)">일부 해당</button>
+              <button class="q-btn" onclick="answer(2,2,'no',6)">아니오</button>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-text"><span class="q-num">Q11</span>납품 가능한 업종이나 적용 분야가 홈페이지에 명시되어 있나요?<span class="q-pts">6점</span></div>
+            <div class="q-options">
+              <button class="q-btn" onclick="answer(2,3,'yes',6)">예</button>
+              <button class="q-btn" onclick="answer(2,3,'partial',6)">일부 해당</button>
+              <button class="q-btn" onclick="answer(2,3,'no',6)">아니오</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 카테고리 4: 신뢰 자료 -->
+      <div class="category-card" id="cat-3">
+        <div class="category-head">
+          <div class="category-icon" style="background:#EEF2F7;">🏆</div>
+          <div class="category-info">
+            <div class="category-name">신뢰 자료</div>
+            <div class="category-pts">배점 20점 · 2문항</div>
+          </div>
+        </div>
+        <div class="category-bar"><div class="category-bar-fill" id="bar-3"></div></div>
+        <div class="questions">
+          <div class="q-item">
+            <div class="q-text"><span class="q-num">Q12</span>ISO, KS, 특허 등 보유 인증이나 수상 이력이 홈페이지에 있나요?<span class="q-pts">10점</span></div>
+            <div class="q-options">
+              <button class="q-btn" onclick="answer(3,0,'yes',10)">예</button>
+              <button class="q-btn" onclick="answer(3,0,'partial',10)">일부 해당</button>
+              <button class="q-btn" onclick="answer(3,0,'no',10)">아니오</button>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-text"><span class="q-num">Q13</span>주요 납품처나 거래 업종이 홈페이지에 소개되어 있나요?<span class="q-pts">10점</span></div>
+            <div class="q-options">
+              <button class="q-btn" onclick="answer(3,1,'yes',10)">예</button>
+              <button class="q-btn" onclick="answer(3,1,'partial',10)">일부 해당</button>
+              <button class="q-btn" onclick="answer(3,1,'no',10)">아니오</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 카테고리 5: 문의 전환 구조 -->
+      <div class="category-card" id="cat-4">
+        <div class="category-head">
+          <div class="category-icon" style="background:#EEF2F7;">📞</div>
+          <div class="category-info">
+            <div class="category-name">문의 전환 구조</div>
+            <div class="category-pts">배점 20점 · 2문항</div>
+          </div>
+        </div>
+        <div class="category-bar"><div class="category-bar-fill" id="bar-4"></div></div>
+        <div class="questions">
+          <div class="q-item">
+            <div class="q-text"><span class="q-num">Q14</span>홈페이지에서 전화, 이메일, 카카오 등 문의 방법이 2가지 이상 제공되나요?<span class="q-pts">10점</span></div>
+            <div class="q-options">
+              <button class="q-btn" onclick="answer(4,0,'yes',10)">예</button>
+              <button class="q-btn" onclick="answer(4,0,'partial',10)">일부 해당</button>
+              <button class="q-btn" onclick="answer(4,0,'no',10)">아니오</button>
+            </div>
+          </div>
+          <div class="q-item">
+            <div class="q-text"><span class="q-num">Q15</span>홈페이지를 처음 본 거래처 담당자가 5초 안에 어떤 회사인지, 무엇을 만드는지 알 수 있나요?<span class="q-pts">10점</span></div>
+            <div class="q-options">
+              <button class="q-btn" onclick="answer(4,1,'yes',10)">예</button>
+              <button class="q-btn" onclick="answer(4,1,'partial',10)">일부 해당</button>
+              <button class="q-btn" onclick="answer(4,1,'no',10)">아니오</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 제출 -->
+      <div class="submit-wrap">
+        <button class="btn-submit" id="btn-submit" onclick="showResult()" disabled>
+          진단 결과 확인하기
+        </button>
+        <div class="submit-hint" id="submit-hint">15개 문항을 모두 답변하면 결과를 확인할 수 있습니다</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- 결과 섹션 -->
+<section id="result-section">
+  <div class="container">
+
+    <!-- 회사명 입력 (선택) -->
+    <div class="result-card" style="margin-bottom:20px;overflow:visible;">
+      <div class="company-input-wrap">
+        <div class="company-input-label">📋 결과 카드에 표시할 회사명 (선택사항)</div>
+        <input type="text" class="company-input" id="company-name" placeholder="예: (주)한성유압" oninput="updateCompanyName()">
+        <div class="company-input-hint">입력하지 않아도 결과 확인 및 저장이 가능합니다.</div>
+      </div>
+    </div>
+
+    <!-- 결과 카드 (이미지 저장 대상) -->
+    <div class="result-card" id="result-card">
+
+      <!-- 결과 헤더 -->
+      <div class="result-header">
+        <div class="result-header-label">제조업 홈페이지 신뢰도 자가진단</div>
+        <div class="result-company" id="result-company-name"></div>
+        <div class="result-score-wrap">
+          <div class="result-score-num" id="result-score">0</div>
+          <div class="result-score-max">/ 100</div>
+        </div>
+        <br>
+        <div class="result-grade-badge" id="result-grade-badge">-</div>
+        <br>
+        <div class="result-date" id="result-date"></div>
+      </div>
+
+      <div class="result-body">
+
+        <!-- 항목별 점수 -->
+        <div class="result-section-title">CATEGORY SCORES</div>
+        <div class="cat-score-list" id="cat-score-list"></div>
+
+        <!-- 진단 요약 -->
+        <div class="result-section-title">진단 요약</div>
+        <div class="result-summary">
+          <div class="result-summary-title" id="summary-title"></div>
+          <div class="result-summary-text" id="summary-text"></div>
+        </div>
+
+        <!-- 개선 방향 -->
+        <div class="result-section-title">추천 개선 방향</div>
+        <div class="improve-list" id="improve-list"></div>
+
+        <!-- 안내 문구 -->
+        <div class="result-notice">
+          점수가 낮다고 해서 반드시 새 홈페이지가 필요한 것은 아닙니다. 다만 제품, 설비, 인증, 문의 동선이 온라인에서 잘 보이지 않는다면 신규 거래처가 회사를 판단하는 데 시간이 오래 걸릴 수 있습니다. 현재 결과를 기준으로 어떤 부분부터 정리하면 좋을지 함께 안내드릴 수 있습니다.
+        </div>
+
+        <!-- CTA 버튼 -->
+        <div class="result-cta" id="result-cta">
+          <div class="btn-row">
+            <button class="btn-secondary" onclick="saveImage()"><span class="btn-icon">📷</span>결과 이미지 저장</button>
+            <button class="btn-secondary" onclick="printResult()"><span class="btn-icon">🖨️</span>인쇄 / PDF 저장</button>
+          </div>
+          <button class="btn-primary" onclick="location.href='https://barrier-client-form.pages.dev'">진단 결과 기준으로 홈페이지 구성 상담하기 →</button>
+          <button class="btn-secondary" onclick="location.href='https://barrierzone.kr'"><span class="btn-icon">📂</span>관련 포트폴리오 보기</button>
+        </div>
+
+      </div>
+    </div>
+
+    <button class="btn-retry" onclick="retryDiagnosis()">↺ 다시 진단하기</button>
+
+  </div>
+</section>
+
+<!-- 로딩 오버레이 -->
+<div class="loading-overlay" id="loading">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">이미지 저장 중...</div>
+</div>
+
+<!-- 토스트 -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── 데이터 구조 ──────────────────────────────────────────
+var categories = [
+  { name:'온라인 존재감', icon:'🌐', maxPts:15, qCount:3 },
+  { name:'홈페이지 기본 상태', icon:'💻', maxPts:20, qCount:4 },
+  { name:'제품·기술 전달력', icon:'⚙️', maxPts:25, qCount:4 },
+  { name:'신뢰 자료', icon:'🏆', maxPts:20, qCount:2 },
+  { name:'문의 전환 구조', icon:'📞', maxPts:20, qCount:2 },
+];
+
+// answers[catIdx][qIdx] = { type, pts, earned }
+var answers = [
+  [null, null, null],
+  [null, null, null, null],
+  [null, null, null, null],
+  [null, null],
+  [null, null],
+];
+
+var totalAnswered = 0;
+
+// ── 답변 처리 ─────────────────────────────────────────────
+function answer(catIdx, qIdx, type, maxPts) {
+  var earned = type === 'yes' ? maxPts : type === 'partial' ? Math.floor(maxPts / 2) : 0;
+
+  var wasNull = answers[catIdx][qIdx] === null;
+  answers[catIdx][qIdx] = { type: type, pts: maxPts, earned: earned };
+
+  if (wasNull) totalAnswered++;
+
+  // 버튼 상태 업데이트
+  var qItem = event.target.closest('.q-item');
+  var btns = qItem.querySelectorAll('.q-btn');
+  btns.forEach(function(b) {
+    b.classList.remove('sel-yes','sel-partial','sel-no');
+  });
+  event.target.classList.add('sel-' + type);
+
+  updateProgress();
+  updateCategoryBar(catIdx);
+  checkSubmit();
+}
+
+// ── 카테고리 바 업데이트 ──────────────────────────────────
+function updateCategoryBar(catIdx) {
+  var cat = categories[catIdx];
+  var earned = 0;
+  answers[catIdx].forEach(function(a) { if (a) earned += a.earned; });
+  var pct = Math.round((earned / cat.maxPts) * 100);
+  document.getElementById('bar-' + catIdx).style.width = pct + '%';
+}
+
+// ── 진행 상태 업데이트 ───────────────────────────────────
+function updateProgress() {
+  var pct = Math.round((totalAnswered / 15) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-count').textContent = totalAnswered + ' / 15 완료';
+
+  var total = calcTotalScore();
+  document.getElementById('current-score').textContent = totalAnswered > 0 ? total + '점 (진행 중)' : '-';
+}
+
+// ── 총점 계산 ─────────────────────────────────────────────
+function calcTotalScore() {
+  var total = 0;
+  answers.forEach(function(cat) {
+    cat.forEach(function(a) { if (a) total += a.earned; });
+  });
+  return total;
+}
+
+function calcCatScore(catIdx) {
+  var total = 0;
+  answers[catIdx].forEach(function(a) { if (a) total += a.earned; });
+  return total;
+}
+
+// ── 제출 버튼 활성화 ─────────────────────────────────────
+function checkSubmit() {
+  var btn = document.getElementById('btn-submit');
+  var hint = document.getElementById('submit-hint');
+  if (totalAnswered === 15) {
+    btn.disabled = false;
+    hint.textContent = '모든 항목 완료! 결과를 확인하세요.';
+  }
+}
+
+// ── 등급 판정 ─────────────────────────────────────────────
+function getGrade(score) {
+  if (score >= 90) return { grade:'매우 우수', color:'#16A34A', bg:'#F0FFF4', border:'#86EFAC' };
+  if (score >= 75) return { grade:'양호', color:'#2563EB', bg:'#EFF6FF', border:'#93C5FD' };
+  if (score >= 60) return { grade:'개선 권장', color:'#D97706', bg:'#FFFBEB', border:'#FCD34D' };
+  if (score >= 40) return { grade:'우선 정리 필요', color:'#EA580C', bg:'#FFF7ED', border:'#FCA5A5' };
+  return { grade:'온라인 신뢰도 보강 필요', color:'#DC2626', bg:'#FFF5F5', border:'#FCA5A5' };
+}
+
+// ── 진단 요약 문구 ────────────────────────────────────────
+function getSummary(score, catScores) {
+  if (score >= 90) return {
+    title:'온라인 신뢰도가 매우 높은 상태입니다',
+    text:'제품, 기술력, 인증자료, 문의 동선이 고르게 잘 갖추어져 있습니다. 신규 거래처가 회사를 빠르게 파악하고 문의까지 이어지기 좋은 구조입니다.',
+  };
+  if (score >= 75) return {
+    title:'전반적으로 잘 갖추어져 있으나 일부 보완이 필요합니다',
+    text:'기본적인 온라인 신뢰도는 확보된 상태입니다. 부족한 항목을 보완하면 신규 거래처 전환율을 더 높일 수 있습니다.',
+  };
+  if (score >= 60) return {
+    title:'핵심 정보는 있지만 전달 방식 개선이 필요합니다',
+    text:'제품이나 기술 정보가 있더라도 거래처 담당자가 찾기 어려운 구조일 수 있습니다. 정보 배치와 문의 동선을 정리하면 효과적입니다.',
+  };
+  if (score >= 40) return {
+    title:'온라인에서 신뢰를 전달하기 어려운 상태입니다',
+    text:'제품, 설비, 인증, 문의 동선 중 빠진 항목이 많습니다. 신규 거래처가 회사를 파악하는 데 오랜 시간이 걸릴 수 있어, 우선순위를 정해 정리가 필요합니다.',
+  };
+  return {
+    title:'온라인 신뢰도 구축이 시급한 상태입니다',
+    text:'현재 상태에서는 신규 거래처가 온라인으로 회사를 확인하기 어렵습니다. 기본적인 홈페이지 구축 또는 온라인 정보 정비부터 시작하는 것을 권장드립니다.',
+  };
+}
+
+// ── 개선 방향 ─────────────────────────────────────────────
+function getImprovements(catScores) {
+  var items = [];
+  var cats = [
+    { idx:0, name:'온라인 존재감', tip:'네이버 지도, 카카오맵에 회사 정보를 등록하고 검색에서 찾을 수 있도록 홈페이지를 구축해보세요.' },
+    { idx:1, name:'홈페이지 기본 상태', tip:'모바일에서도 잘 보이는 반응형 홈페이지와 최신 연락처 정보를 갖추는 것이 우선입니다.' },
+    { idx:2, name:'제품·기술 전달력', tip:'실제 제품 사진과 보유 설비 정보를 홈페이지에 정리하면 거래처 담당자의 신뢰도가 크게 올라갑니다.' },
+    { idx:3, name:'신뢰 자료', tip:'보유 인증서, 납품 실적을 홈페이지에 노출하면 처음 방문한 거래처의 발주 결정 속도가 빨라집니다.' },
+    { idx:4, name:'문의 전환 구조', tip:'전화번호를 눈에 잘 띄게 배치하고, 카카오 채널이나 문의 폼을 추가해 문의 진입 장벽을 낮추세요.' },
+  ];
+
+  cats.forEach(function(cat) {
+    var pct = catScores[cat.idx] / categories[cat.idx].maxPts;
+    if (pct < 0.7) items.push({ name: cat.name, tip: cat.tip });
+  });
+
+  if (items.length === 0) {
+    items.push({ name:'전체 유지', tip:'현재 상태를 잘 유지하고, 주기적으로 콘텐츠를 업데이트해 최신 상태를 유지해주세요.' });
+  }
+  return items;
+}
+
+// ── 결과 표시 ─────────────────────────────────────────────
+function showResult() {
+  var score = calcTotalScore();
+  var grade = getGrade(score);
+  var catScores = categories.map(function(_, i) { return calcCatScore(i); });
+  var summary = getSummary(score, catScores);
+  var improvements = getImprovements(catScores);
+
+  // 점수 & 등급
+  document.getElementById('result-score').textContent = score;
+  var badge = document.getElementById('result-grade-badge');
+  badge.textContent = grade.grade;
+  badge.style.background = grade.bg;
+  badge.style.color = grade.color;
+  badge.style.border = '2px solid ' + grade.border;
+
+  // 날짜
+  var now = new Date();
+  document.getElementById('result-date').textContent =
+    now.getFullYear() + '년 ' + (now.getMonth()+1) + '월 ' + now.getDate() + '일 진단';
+
+  // 항목별 점수
+  var catList = document.getElementById('cat-score-list');
+  catList.innerHTML = '';
+  categories.forEach(function(cat, i) {
+    var earned = catScores[i];
+    var pct = Math.round((earned / cat.maxPts) * 100);
+    var barColor = pct >= 70 ? '#16A34A' : pct >= 40 ? '#D97706' : '#DC2626';
+    catList.innerHTML += '<div class="cat-score-item">' +
+      '<div class="cat-score-icon">' + cat.icon + '</div>' +
+      '<div class="cat-score-info">' +
+        '<div class="cat-score-name">' + cat.name + '</div>' +
+        '<div class="cat-score-bar-wrap">' +
+          '<div class="cat-score-bar" style="width:' + pct + '%;background:' + barColor + ';"></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="cat-score-pts">' + earned + '/' + cat.maxPts + '</div>' +
+    '</div>';
+  });
+
+  // 요약
+  document.getElementById('summary-title').textContent = summary.title;
+  document.getElementById('summary-text').textContent = summary.text;
+
+  // 개선 방향
+  var improveList = document.getElementById('improve-list');
+  improveList.innerHTML = '';
+  improvements.forEach(function(item) {
+    improveList.innerHTML += '<div class="improve-item">' +
+      '<div class="improve-dot"></div>' +
+      '<div class="improve-text"><strong>' + item.name + '</strong> — ' + item.tip + '</div>' +
+    '</div>';
+  });
+
+  // 섹션 전환
+  document.getElementById('diagnosis-section').style.display = 'none';
+  document.getElementById('result-section').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── 회사명 업데이트 ───────────────────────────────────────
+function updateCompanyName() {
+  var name = document.getElementById('company-name').value.trim();
+  document.getElementById('result-company-name').textContent = name ? name + ' | 자가진단 결과' : '';
+}
+
+// ── 이미지 저장 ───────────────────────────────────────────
+function saveImage() {
+  var loading = document.getElementById('loading');
+  var cta = document.getElementById('result-cta');
+  var companyInput = document.querySelector('.company-input-wrap').parentNode;
+
+  loading.classList.add('show');
+  cta.style.display = 'none';
+
+  setTimeout(function() {
+    html2canvas(document.getElementById('result-card'), {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+    }).then(function(canvas) {
+      var link = document.createElement('a');
+      link.download = 'manufacturing-website-diagnosis.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      loading.classList.remove('show');
+      cta.style.display = 'flex';
+      showToast('이미지가 저장되었습니다 📷');
+    }).catch(function() {
+      loading.classList.remove('show');
+      cta.style.display = 'flex';
+      showToast('저장 중 오류가 발생했습니다. 다시 시도해주세요.');
+    });
+  }, 100);
+}
+
+// ── 인쇄 ─────────────────────────────────────────────────
+function printResult() {
+  window.print();
+}
+
+// ── 다시하기 ─────────────────────────────────────────────
+function retryDiagnosis() {
+  answers = [
+    [null,null,null],
+    [null,null,null,null],
+    [null,null,null,null],
+    [null,null],
+    [null,null],
+  ];
+  totalAnswered = 0;
+
+  document.querySelectorAll('.q-btn').forEach(function(b) {
+    b.classList.remove('sel-yes','sel-partial','sel-no');
+  });
+  for(var i=0;i<5;i++){
+    document.getElementById('bar-'+i).style.width='0%';
+  }
+  document.getElementById('progress-bar').style.width = '0%';
+  document.getElementById('progress-count').textContent = '0 / 15 완료';
+  document.getElementById('current-score').textContent = '-';
+  document.getElementById('btn-submit').disabled = true;
+  document.getElementById('submit-hint').textContent = '15개 문항을 모두 답변하면 결과를 확인할 수 있습니다';
+  document.getElementById('company-name').value = '';
+
+  document.getElementById('result-section').style.display = 'none';
+  document.getElementById('diagnosis-section').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── 토스트 ────────────────────────────────────────────────
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2800);
+}
+</script>
+</body>
+</html>
